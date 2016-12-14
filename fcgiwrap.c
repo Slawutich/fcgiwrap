@@ -352,6 +352,7 @@ static void fcgi_pass(struct fcgi_context *fc)
 
 static int check_file_perms(const char *path)
 {
+	return 0;
 	struct stat ls;
 	struct stat fs;
 
@@ -577,7 +578,14 @@ static void handle_fcgi_request(void)
 				}
 			}
 
-			execl(filename, filename, (void *)NULL);
+			char * execute_via = getenv("EXECUTE_VIA");
+			//fprintf(stderr, "EXECUTE_VIA (%s)\n", execute_via);
+			if (execute_via == NULL) {
+				execl(filename, filename, (void *)NULL);
+			}else{
+                                //fprintf(stderr, "run (%s %s)\n", execute_via, filename);
+				execl(execute_via, filename, filename, (void *)NULL);
+			}
 			cgi_error("502 Bad Gateway", "Cannot execute script", filename);
 
 		default: /* parent */
